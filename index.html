@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Simulasi Tata Surya VR Game-Style</title>
+  <script src="https://aframe.io/releases/1.4.0/aframe.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/super-hands@4.0.3/dist/super-hands.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/gh/ngokevin/aframe-look-at-component@master/dist/aframe-look-at-component.min.js"></script>
+  <style>
+    body { margin: 0; }
+    .fade-in { animation: fadeIn 2s ease forwards; }
+    @keyframes fadeIn { 0% { opacity: 0; } 100% { opacity: 1; } }
+
+    .logo { animation: scaleIntro 3s ease forwards; }
+    @keyframes scaleIntro { 0% { scale: 0; opacity: 0; } 100% { scale: 1; opacity: 1; } }
+
+    .info-panel {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      background: rgba(0,0,0,0.85);
+      color: #fff;
+      padding: 15px;
+      border-radius: 10px;
+      width: 260px;
+      font-family: sans-serif;
+      display: none;
+      z-index: 999;
+    }
+
+    .info-panel h3 { margin: 0 0 10px 0; }
+
+    .info-panel button {
+      margin-top: 10px;
+      padding: 5px 10px;
+      background: #ff5555;
+      color: white;
+      border: none;
+      cursor: pointer;
+      border-radius: 5px;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Panel Info Planet -->
+  <div id="planet-info" class="info-panel">
+    <h3 id="planet-title">Planet</h3>
+    <p id="planet-desc">Deskripsi planet akan muncul di sini.</p>
+    <button onclick="document.getElementById('planet-info').style.display='none'">Tutup</button>
+  </div>
+
+  <a-scene background="color: black">
+    <a-entity id="startAnimation" visible="true">
+      <a-sky color="#000000"></a-sky>
+      <a-text value="Initializing Virtual Environment..."
+               position="0 2 -3"
+               align="center"
+               width="12"
+               color="#00ffff"
+               class="logo"
+               scale="5 5 5">
+      </a-text>
+    </a-entity>
+
+    <a-entity id="lobby" visible="false" class="fade-in">
+      <a-sky color="#000033"></a-sky>
+      <a-entity light="type: ambient; color: #666"></a-entity>
+      <a-entity position="0 1.6 0">
+        <a-camera>
+          <a-entity cursor="fuse: true; fuseTimeout: 2000"
+                    position="0 0 -1"
+                    geometry="primitive: ring; radiusInner: 0.02; radiusOuter: 0.03"
+                    material="color: white; shader: flat"></a-entity>
+        </a-camera>
+      </a-entity>
+
+      <a-text value="Selamat Datang di Simulasi Tata Surya VR"
+              position="0 4 -3"
+              width="20"
+              align="center"
+              color="#FFD700"
+              scale="1.8 1.8 1.8"></a-text>
+
+      <a-entity id="instructionPanel" position="-20.417 17.815 -1.821" scale="3 3 3">
+        <a-plane width="6" height="2.8" color="#222" opacity="0.85" material="side:double"></a-plane>
+        <a-text value="Petunjuk Penggunaan:\n- Gunakan mouse atau kontrol VR untuk melihat sekitar.\n- Klik tombol 'Mulai' untuk masuk ke simulasi Tata Surya.\n- Interaksi dengan planet bisa dilakukan dengan pointer VR."
+                color="#FFF"
+                width="5.5"
+                align="left"
+                position="-2.6 1.1 0.01"
+                wrap-count="50">
+        </a-text>
+      </a-entity>
+
+      <a-box id="startButton"
+             position="0 0.7 -3"
+             depth="0.3" height="1" width="5"
+             color="#00FFAA"
+             class="interactable"
+             event-set__enter="_event: mouseenter; color: #00DD88"
+             event-set__leave="_event: mouseleave; color: #00FFAA">
+      </a-box>
+
+      <a-text value="Mulai"
+              position="0 0.7 -2.8"
+              align="center"
+              width="8"
+              color="#000"
+              scale="3 3 3"></a-text>
+    </a-entity>
+
+    <a-entity id="solarSystem" visible="false" class="fade-in">
+      <a-sky src="assets/langit.jpg" rotation="0 -90 0"></a-sky>
+      <a-entity light="type: ambient; color: #666"></a-entity>
+      <a-entity light="type: point; color: #fff; intensity: 2; distance: 100" position="0 1.6 0"></a-entity>
+
+      <a-entity id="cameraRig">
+        <a-entity position="0 3 20">
+          <a-camera wasd-controls look-controls>
+            <a-entity cursor="rayOrigin: mouse"
+                      raycaster="objects: .interactable"
+                      position="0 0 -1"
+                      geometry="primitive: ring; radiusInner: 0.02; radiusOuter: 0.03"
+                      material="color: cyan; shader: flat"></a-entity>
+
+            <a-entity laser-controls="hand: right; model: false"
+                      raycaster="objects: .interactable"
+                      super-hands
+                      line="color: yellow"></a-entity>
+          </a-camera>
+        </a-entity>
+      </a-entity>
+
+      <a-entity id="sun"
+                gltf-model="assets/sun.glb"
+                scale="0.4 0.4 0.4"
+                position="0 1.6 0"
+                animation="property: rotation; to: 0 360 0; loop: true; dur: 10000">
+      </a-entity>
+<!-- Tombol Kembali dengan Teks -->
+<a-entity position="20.669 17.637 -4.077" id="backButton" class="interactable" back-to-lobby>
+  <a-box
+    depth="0.3"
+    height="1"
+    width="5"
+    color="#FF5555"
+    event-set__enter="_event: mouseenter; color: #DD3333"
+    event-set__leave="_event: mouseleave; color: #FF5555">
+  </a-box>
+
+  <a-text
+    value="Kembali"
+    position="0 0 0.2"  <!-- Lebih dekat ke kamera -->
+    align="center"
+    color="#FFFFFF"
+    width="10"
+    scale="2.5 2.5 2.5"
+    look-at="#cameraRig">
+  </a-text>
+</a-entity>
+
+
+    <script>
+      const planets = [
+        { name: 'mercury', dist: 4, scale: 0.3, dur: 4000 },
+        { name: 'venus', dist: 6, scale: 0.4, dur: 6000 },
+        { name: 'earth', dist: 8, scale: 3.0, dur: 8000 },
+        { name: 'mars', dist: 10, scale: 1.6, dur: 10000 },
+        { name: 'jupiter', dist: 13, scale: 1.0, dur: 12000 },
+        { name: 'saturn', dist: 16, scale: 0.007, dur: 14000 },
+        { name: 'uranus', dist: 19, scale: 0.8, dur: 16000 },
+        { name: 'neptune', dist: 22, scale: 0.09, dur: 18000 }
+      ];
+
+      AFRAME.registerComponent('start-game', {
+        init: function () {
+          this.el.addEventListener('click', () => {
+            const lobby = document.querySelector('#lobby');
+            const solarSystem = document.querySelector('#solarSystem');
+            lobby.setAttribute('animation__fadeout', 'property: components.material.material.opacity; to: 0; dur: 1000');
+            setTimeout(() => {
+              lobby.setAttribute('visible', 'false');
+              solarSystem.setAttribute('visible', 'true');
+            }, 1000);
+          });
+        }
+      });
+
+      AFRAME.registerComponent('back-to-lobby', {
+        init: function () {
+          this.el.addEventListener('click', () => {
+            const solarSystem = document.querySelector('#solarSystem');
+            const lobby = document.querySelector('#lobby');
+            solarSystem.setAttribute('visible', 'false');
+            lobby.setAttribute('visible', 'true');
+          });
+        }
+      });
+
+      AFRAME.registerComponent('show-info', {
+        schema: {
+          title: { type: 'string' },
+          desc: { type: 'string' }
+        },
+        init: function () {
+          this.el.addEventListener('contextmenu', (e) => {
+            e.preventDefault();
+            showPanel(this.data.title, this.data.desc);
+          });
+          this.el.addEventListener('click', (e) => {
+            if (e.detail && e.detail.cursorEl && e.detail.cursorEl.components.raycaster) {
+              showPanel(this.data.title, this.data.desc);
+            }
+          });
+        }
+      });
+
+      function showPanel(title, desc) {
+        const panel = document.getElementById('planet-info');
+        document.getElementById('planet-title').textContent = title;
+        document.getElementById('planet-desc').textContent = desc;
+        panel.style.display = 'block';
+      }
+
+      document.addEventListener('DOMContentLoaded', () => {
+        const startAnim = document.querySelector('#startAnimation');
+        setTimeout(() => {
+          startAnim.setAttribute('visible', 'false');
+          document.querySelector('#lobby').setAttribute('visible', 'true');
+        }, 3000);
+
+        document.querySelector('#startButton').setAttribute('start-game', '');
+        document.querySelector('#backButton').setAttribute('back-to-lobby', '');
+
+        planets.forEach(p => {
+          const orbit = document.createElement('a-entity');
+          orbit.setAttribute('id', `${p.name}-orbit`);
+          orbit.setAttribute('animation__orbit', `property: rotation; to: 0 360 0; loop: true; dur: ${p.dur}`);
+
+          const planet = document.createElement('a-entity');
+          planet.setAttribute('id', `${p.name}-planet`);
+          planet.setAttribute('position', p.name === 'mercury' ? '4.990 1.600 0.27' : `${p.dist} 1.6 0`);
+          planet.setAttribute('scale', `${p.scale} ${p.scale} ${p.scale}`);
+          planet.setAttribute('class', 'interactable');
+          planet.setAttribute('hoverable', '');
+          planet.setAttribute('draggable', '');
+          planet.setAttribute('grabbable', '');
+          planet.setAttribute('animation__spin', 'property: rotation; to: 0 360 0; loop: true; dur: 10000');
+
+          const title = p.name.charAt(0).toUpperCase() + p.name.slice(1);
+          const desc = `Planet ${title} mengorbit matahari setiap ${p.dur / 1000} detik.`;
+          planet.setAttribute('show-info', `title: ${title}; desc: ${desc}`);
+
+          if (p.name === 'mars') {
+            planet.setAttribute('geometry', 'primitive: sphere; radius: 0.5');
+            planet.setAttribute('material', 'src: assets/mars.jpg; roughness: 1; metalness: 0.2');
+          } else {
+            planet.setAttribute('gltf-model', `assets/${p.name}.glb`);
+          }
+
+          const label = document.createElement('a-text');
+          label.setAttribute('value', title);
+          label.setAttribute('position', p.name === 'mercury' ? '4.990 2.2 0.27' : `${p.dist} 2.2 0`);
+          label.setAttribute('color', '#ccc');
+          label.setAttribute('align', 'center');
+          label.setAttribute('look-at', '#cameraRig');
+
+          orbit.appendChild(planet);
+          orbit.appendChild(label);
+          document.querySelector('#solarSystem').appendChild(orbit);
+
+          if (p.name === 'saturn') {
+            const ringSaturn = document.createElement('a-ring');
+            ringSaturn.setAttribute('rotation', '-90 0 0');
+            ringSaturn.setAttribute('radius-inner', 0.9);
+            ringSaturn.setAttribute('radius-outer', 1.2);
+            ringSaturn.setAttribute('material', 'src: url(assets/ring-saturn.png); side: double; transparent: true');
+            ringSaturn.setAttribute('position', `${p.dist} 1.6 0`);
+            orbit.appendChild(ringSaturn);
+          }
+
+          planet.addEventListener('grab-start', () => {
+            orbit.removeAttribute('animation__orbit');
+          });
+
+          planet.addEventListener('grab-end', () => {
+            orbit.setAttribute('animation__orbit', `property: rotation; to: 0 360 0; loop: true; dur: ${p.dur}`);
+          });
+        });
+      });
+    </script>
+  </a-scene>
+</body>
+</html>
