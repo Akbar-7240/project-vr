@@ -14,19 +14,33 @@
     .logo { animation: scaleIntro 3s ease forwards; }
     @keyframes scaleIntro { 0% { scale: 0; opacity: 0; } 100% { scale: 1; opacity: 1; } }
 
-    .info-panel {
-      position: absolute;
+     .info-panel {
+      position: fixed;
       top: 20px;
       right: 20px;
-      background: rgba(0,0,0,0.85);
+      background: rgba(0, 0, 0, 0.85);
       color: #fff;
       padding: 15px;
       border-radius: 10px;
-      width: 260px;
+      width: 280px;
+      max-height: 90vh;
       font-family: sans-serif;
       display: none;
-      z-index: 999;
+      z-index: 99999; /* pastikan paling atas */
+      overflow-y: auto;
+      box-sizing: border-box;
+      box-shadow: 0 0 15px rgba(0,0,0,0.7);
     }
+
+    @media (max-width: 768px) {
+      .info-panel {
+        width: 90%;
+        right: 5%;
+        left: 5%;
+        top: 10px;
+      }
+    }
+
 
     .info-panel h3 { margin: 0 0 10px 0; }
 
